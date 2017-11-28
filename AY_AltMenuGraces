@@ -1,0 +1,186 @@
+//=============================================================================
+// AltMenuGraces.js
+//=============================================================================
+
+/*:
+ * @plugindesc V1.01: Turns your main menu layout into that of Tales of 
+ * Graces from Bandai Namco 
+ * @author Francis Bercero (AngelicYuuki)
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ * @help 
+ *
+ *This plugim will turn your main menu into that of Tales of Graces from 
+ * Bandai Namco. 
+ *
+ * There are no customizable options for version 1.00. Stay tuned for 
+ * more 
+ *
+ *
+ *---------------------------
+ * PLUGIN CHANGE LOG 
+ *----------------------------
+ *
+ *
+ * NOVEMBER 9TH, 2017: 
+ * - Finished the Plugin for the first time 
+ * - Used the Layout for Tales of Graces for this plugin 
+ *
+ *
+ * NOVEMBER 19TH, 2017: 
+ * - Swapped the text for EXP for a EXP Gauge like in the original game 
+ *
+ *
+ *
+ *---------------------------
+ * Follow the Adventure
+ *--------------------------
+ *
+ * Welcome to the "Follow the Aventure " section. This is how you will be able 
+ * to follow my progress on the games, plugins, and more . 
+ *
+ * FACEBOOK: Search for "AngelicYuuki Nation Game Dev"
+ * TWITTER: @AYuukiNation 
+ *
+ * BLOG WEBSITE: https://aygamedevnews.weebly.com
+ * WORDPRESS: https://aygamedev.wordpress.com
+ *  YOUTUBE: AngelicYuuki Nation 
+ *
+ * 
+ *
+ *
+ */
+
+
+(function() {
+
+    var _Scene_Menu_create = Scene_Menu.prototype.create;
+    Scene_Menu.prototype.create = function() {
+        _Scene_Menu_create.call(this);
+        this._statusWindow.x = 0;
+        this._statusWindow.y = this._commandWindow.height;
+        this._goldWindow.x = Graphics.boxWidth - this._goldWindow.width;
+    };
+
+    Window_MenuCommand.prototype.windowWidth = function() {
+        return Graphics.boxWidth;
+    };
+
+    Window_MenuCommand.prototype.maxCols = function() {
+        return 4;
+    };
+
+    Window_MenuCommand.prototype.numVisibleRows = function() {
+        return 2;
+    };
+
+    Window_MenuStatus.prototype.windowWidth = function() {
+        return 600;
+    };
+
+    Window_MenuStatus.prototype.windowHeight = function() {
+        var h1 = this.fittingHeight(1);
+        var h2 = this.fittingHeight(2);
+        return Graphics.boxHeight - h1 - h2;
+    };
+
+    Window_MenuStatus.prototype.maxCols = function() {
+        return 1;
+    };
+
+    Window_MenuStatus.prototype.numVisibleRows = function() {
+        return 4;
+    };
+
+
+
+
+
+
+
+
+
+    Window_MenuStatus.prototype.drawItemImage = function(index) {
+        var actor = $gameParty.members()[index];
+        var rect = this.itemRectForText(index);
+        var w = Math.min(rect.width, 144);
+        var h = Math.min(rect.height, 144);
+        var lineHeight = this.lineHeight();
+        this.drawActorFace(actor, rect.x - 10, rect.y + 10, 100, 50);
+        this.changePaintOpacity(actor.isBattleMember());
+
+
+
+
+
+        this.changePaintOpacity(true);
+    };
+
+Window_Status.prototype.drawHorzLine = function(y) {
+    var lineY = y + this.lineHeight() / 2 - 1;
+    this.contents.paintOpacity = 48;
+    this.contents.fillRect(0, lineY, this.contentsWidth(), 2, this.lineColor());
+    this.contents.paintOpacity = 255;
+};
+
+    Window_MenuStatus.prototype.drawItemStatus = function(index) {
+        var actor = $gameParty.members()[index];
+        var rect = this.itemRectForText(index);
+        var x = rect.x;
+        var y = rect.y;
+        var width = rect.width;
+        var bottom = y + rect.height;
+        var lineHeight = this.lineHeight();
+        this.drawActorName(actor,x + 100 ,y,width);
+        this.drawActorLevel(actor, x + 300,y,width);
+        this.drawActorHp(actor,x + 100,y + 30 ,250);
+        this.drawActorEXP(actor,x + 400,y , 100);
+
+
+    };
+
+   
+
+    var _Window_MenuActor_initialize = Window_MenuActor.prototype.initialize;
+    Window_MenuActor.prototype.initialize = function() {
+        _Window_MenuActor_initialize.call(this);
+        this.y = this.fittingHeight(2);
+    };
+
+
+
+
+    Game_Actor.prototype.xpRate = function() {
+        return (this.nextLevelExp() - this.currentExp()) / (this.nextLevelExp() - this.currentLevelExp());
+    };
+
+    Window_MenuStatus.prototype.drawActorEXP = function(actor, x, y, width) {
+        var color1 = this.textColor(28);
+        var color2 = this.textColor(29);
+        this.drawExpGauge(x, y, width, actor.xpRate(), color1, color2);
+        this.changeTextColor(this.systemColor());
+        this.drawText("NEXT", x, y, 44);
+        this.changeTextColor(this.normalColor());
+        this.drawText(actor.nextRequiredExp(), x, y, width,"right");
+    };
+
+
+    Window_Base.prototype.drawExpGauge = function(dx, dy, dw, rate, color1, color2) {
+    var color3 = this.gaugeBackColor();
+    var fillW = Math.floor(dw * rate).clamp(0, dw);
+    var gaugeH = 12;
+    var gaugeY = dy + this.lineHeight() - gaugeH - 2;
+    var fillW = Math.floor(dw * rate);
+    var gaugeY = dy + this.lineHeight() - gaugeH - 2;
+    this.contents.fillRect(dx, gaugeY, dw, gaugeH, color3);
+    this.contents.gradientFillRect(dx, gaugeY, dw - fillW, gaugeH, color1, color2);
+    };
+
+})();
